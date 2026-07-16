@@ -14,7 +14,6 @@ class TrainRouteForm extends Model {
     public $day;
     public $month;
     public $q;
-    
     private $_dataResponce = [
         'success' => false,
         'error' => 'Ошибка на сервере, попробуйте позже',
@@ -69,17 +68,16 @@ class TrainRouteForm extends Model {
         ];
     }
 
-   
     public function load($data, $formName = null): bool {
         if (!empty($data['TrainRouteForm'])) {
-            foreach($data['TrainRouteForm'] as $attr => $value) {
+            foreach ($data['TrainRouteForm'] as $attr => $value) {
                 $this->{$attr} = $value;
             }
         }
-        
+
         return true;
     }
-    
+
     public function testvalue() {
         $this->train = '016А';
         $this->start_station = 2000000;
@@ -92,7 +90,6 @@ class TrainRouteForm extends Model {
         try {
             $starlinerService = new StarlinerService();
             $dataResponce = $starlinerService->getTrainRoute($this->attributes);
-
             if (!empty($dataResponce)) {
                 $this->setDataResponce([
                     'success' => false,
@@ -113,11 +110,18 @@ class TrainRouteForm extends Model {
     }
 
     public function getRailStations() {
-        $starlinerService = new StarlinerService();
-        $dataResponce = $starlinerService->getRailStations($this->q);
-        $this->setDataResponce($dataResponce);
+        try {
+            $starlinerService = new StarlinerService();
+            $dataResponce = $starlinerService->getRailStations($this->q);
+            $this->setDataResponce($dataResponce);
+        } catch (Exception $e) {
+            $this->setDataResponce([[
+                'id' => 0,
+                'name' => 'Ошибка на сервере, попробуйте позже',
+            ]]);
+        }
     }
-    
+
     public function setDataResponce(array $data) {
         $this->_dataResponce = $data;
     }
@@ -125,10 +129,10 @@ class TrainRouteForm extends Model {
     public function getDataResponce(): array {
         return $this->_dataResponce;
     }
-    
+
     public function getValidateErrors() {
         if ($this->hasErrors()) {
-            
+
             $data = [];
             foreach ($this->getErrors() as $att => $message) {
                 $data[] = $this->getAttributeLabel($att) . ' ' . join(', ', $message);
@@ -136,7 +140,7 @@ class TrainRouteForm extends Model {
             $this->setDataResponce([
                 'success' => false,
                 'error' => join('<br>', $data),
-            ]);            
+            ]);
         }
     }
 }
