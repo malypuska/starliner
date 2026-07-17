@@ -16,7 +16,7 @@ class TrainServiceTest extends \Codeception\Test\Unit {
         
         $starlinerService = new StarlinerService();
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(\yii\base\ErrorException::class);
 
         $requestParams = [
             'train' => '016А',
