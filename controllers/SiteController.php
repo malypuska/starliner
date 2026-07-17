@@ -21,7 +21,7 @@ class SiteController extends Controller
     public function actionIndex(): string
     {
         $trainRouteForm = new TrainRouteForm();
-        $trainRouteForm->testvalue();
+//        $trainRouteForm->testvalue();
         
         return $this->render('index', ['trainRouteForm' => $trainRouteForm]);
     }

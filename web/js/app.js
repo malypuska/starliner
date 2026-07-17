@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const submitBtn = $('#submit-btn');
         const errorBox = $('#error-message');
         const resultBox = $('#route-result-container');
+        resultBox.html('');
 
         errorBox.addClass('d-none').text('');
         submitBtn.prop('disabled', true).text('Идет поиск маршрута ...');

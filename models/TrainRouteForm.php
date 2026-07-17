@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use Yii;
 use yii\base\Model;
 use Exception;
 use app\components\StarlinerService;
@@ -90,7 +91,7 @@ class TrainRouteForm extends Model {
         try {
             $starlinerService = new StarlinerService();
             $dataResponce = $starlinerService->getTrainRoute($this->attributes);
-            if (!empty($dataResponce)) {
+            if (empty($dataResponce)) {
                 $this->setDataResponce([
                     'success' => false,
                     'error' => 'Ошибка на сервере, попробуйте позже',
@@ -98,7 +99,7 @@ class TrainRouteForm extends Model {
             } else {
                 $this->setDataResponce([
                     'success' => true,
-                    'html' => Yii::$app->view->renderFile('@frontend/views/train/_route_result', ['data' => $dataResponce]),
+                    'html' => Yii::$app->view->renderFile('@app/views/train/_route_result.php', ['data' => $dataResponce]),
                 ]);
             }
         } catch (Exception $e) {

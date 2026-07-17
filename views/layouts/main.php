@@ -21,7 +21,6 @@ $this->render('_head');
 <body class="d-flex flex-column h-100">
 <?php $this->beginBody() ?>
 
-<?= $this->render('_header') ?>
 
 <main id="main" class="flex-grow-1" role="main">
     <div class="container">
@@ -33,7 +32,6 @@ $this->render('_head');
     </div>
 </main>
 
-<?= $this->render('_footer') ?>
 
 <?php $this->endBody() ?>
 </body>

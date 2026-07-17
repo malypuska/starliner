@@ -26,11 +26,19 @@ class StarlinerService {
     }
 
     public function createSoapClient() {
-        $this->_client = new SoapClient(self::WSDL_URL, [
-            'trace' => 1,
-            'exceptions' => true,
-            'cache_wsdl' => WSDL_CACHE_NONE,
-        ]);
+        try {
+            $this->_client = new SoapClient(self::WSDL_URL, [
+                'trace' => 1,
+                'exceptions' => true,
+                'cache_wsdl' => WSDL_CACHE_NONE,
+            ]);
+        } catch (SoapFault $e) {
+            Yii::error("Ошибка SOAP: " . $e->getMessage(), 'soap_api');
+            return false;
+        } catch (\Exception $e) {
+            Yii::error("Ошибка ({$e->getCode()}): " . $e->getMessage(), 'soap_api');
+            return false;
+        }
     }
 
     /**
@@ -71,9 +79,6 @@ class StarlinerService {
      */
     public function getTrainRoute(array $data) {
         try {
-            // Настройки клиента могут быть расширены (таймауты и т.д.)
-            $client = new SoapClient(self::WSDL_URL);
-
             $train = $data['train'];
             $requestParams = [
                 'from' => $data['start_station'],
@@ -84,17 +89,10 @@ class StarlinerService {
 
             Yii::info('Отправка запроса SOAP trainRoute', 'soap_api');
             Yii::info('Параметры запроса: ' . print_r($requestParams, true), 'soap_api');
-
+            
             $response = $this->_client->trainRoute($this->authData, $train, $requestParams);
-
-            if (!isset($response->return)) {
-                Yii::error('Пустой ответ от Сервера.', 'soap_api');
-                throw new \Exception('Пустой ответ от Сервера.');
-            }
-
-            Yii::info('Успешный ответ от SOAP trainRoute', 'soap_api');
-
-            return $this->parseResponse($response->return);
+            
+            return $this->parseResponse($response);
         } catch (SoapFault $e) {
             Yii::error("Ошибка SOAP-запроса: " . $e->getMessage(), 'soap_api');
             return false;
@@ -123,29 +121,31 @@ class StarlinerService {
         $result = [];
 
         $result['train_description'] = [
-            'number' => (string) $xmlObject->train_description->number,
-            'name' => (string) $xmlObject->train_description->name,
+            'number' => $xmlObject->train_description->number,
+            'from' => $xmlObject->train_description->from,
+            'to' => $xmlObject->train_description->to,
         ];
 
-        $routes = [];
-        foreach ($xmlObject->route_list as $routeItem) {
-            $stops = [];
-            foreach ($routeItem->stop_list as $stopItem) {
+        $stops = [];
+        if (!empty($xmlObject->route_list->stop_list)) {
+            foreach ($xmlObject->route_list->stop_list as $stopItem) {
                 $stops[] = [
-                    'station' => (string) $stopItem->stop,
-                    'arrival_time' => (string) $stopItem->arrival_time,
-                    'departure_time' => (string) $stopItem->departure_time,
-                    'stop_time' => (int) $stopItem->stop_time,
+                    'station' => $stopItem->stop,
+                    'arrival_time' => $stopItem->arrival_time,
+                    'departure_time' => $stopItem->departure_time,
+                    'stop_time' => $stopItem->stop_time,
                 ];
             }
-            $routes[] = [
-                'name' => (string) $routeItem->name,
-                'from' => (string) $routeItem->from,
-                'to' => (string) $routeItem->to,
-                'stops' => $stops,
-            ];
         }
-        $result['routes'] = $routes;
+        
+        $route = [
+            'name' => $xmlObject->route_list->name,
+            'from' => $xmlObject->route_list->from,
+            'to' => $xmlObject->route_list->to,
+            'stops' => $stops,
+        ];
+
+        $result['route'] = $route;
 
         return $result;
     }

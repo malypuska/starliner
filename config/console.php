@@ -28,7 +28,7 @@ $config = [
                     'class' => 'yii\log\FileTarget',
                     'levels' => ['info', 'error'],
                     'categories' => ['soap_api'],
-                    'logFile' => '@runtime/logs/soap.log',                    
+                    'logFile' => '@runtime/logs/soap.log', 
                 ],
             ],
         ],

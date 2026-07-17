@@ -1,8 +1,6 @@
 <?php
-/** @var array $data Результат ответа от SOAP */
-
 $trainDesc = $data['train_description'] ?? null;
-$routeList = $data['route_list'] ?? null;
+$route = $data['route'] ?? null;
 ?>
 
 <div class="card border-success shadow-sm">
@@ -12,12 +10,11 @@ $routeList = $data['route_list'] ?? null;
     <div class="card-body">
         <?php if ($trainDesc): ?>
             <h5>Поезд №: <strong><?= htmlspecialchars($trainDesc['number'] ?? '') ?></strong> <?= htmlspecialchars($trainDesc['name'] ?? '') ?></h5>
-            <p class="text-muted">Направление от <?= htmlspecialchars($trainDesc['from'] ?? '') ?> до <?= htmlspecialchars($trainDesc['to'] ?? '') ?></p>
         <?php endif; ?>
 
-        <?php if ($routeList): ?>
-            <h6 class="mt-3 text-uppercase text-secondary"><?= htmlspecialchars($routeList['name'] ?? 'Основной маршрут') ?></h6>
-            <p class="text-muted">Направление от <?= htmlspecialchars($routeList['from'] ?? '') ?> до <?= htmlspecialchars($routeList['to'] ?? '') ?></p>
+        <?php if ($route): ?>
+            <h6 class="mt-3 text-uppercase text-secondary"><?= htmlspecialchars($route['name'] ?? 'Основной маршрут') ?></h6>
+            <p class="text-muted">Направление от <?= htmlspecialchars($route['from'] ?? '') ?> до <?= htmlspecialchars($route['to'] ?? '') ?></p>
             <div class="table-responsive">
                 <table class="table table-striped table-hover mt-2">
                     <thead class="table-dark">
@@ -29,7 +26,7 @@ $routeList = $data['route_list'] ?? null;
                         </tr>
                     </thead>
                     <tbody>
-                        <?php  foreach ($routeList['stops'] as $stopItem): ?>
+                        <?php  foreach ($route['stops'] as $stopItem): ?>
                             <tr>
                                 <td><strong><?= htmlspecialchars($stopItem['station'] ?? '') ?></strong></td>
                                 <td><?= !empty($stopItem['arrival_time']) ? htmlspecialchars($stopItem['arrival_time']) : '-' ?></td>
